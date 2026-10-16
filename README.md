@@ -1,3 +1,37 @@
+# Star Fox 64: Recompiled, on the web
+
+> [!WARNING]
+> **This is amazingalek/Starfox64Recomp-web, a fork, not Starfox64Recomp.** Its `main` branch is sonicdcer's
+> [Starfox64Recomp](https://github.com/sonicdcer/Starfox64Recomp) moved onto
+> [RecompFrontend](https://github.com/N64Recomp/RecompFrontend) and built into a web page (WebGPU, through
+> [N64Recomp-browser](https://github.com/amazingalek/N64Recomp-browser)), and everything on it past sonicdcer's commits
+> was written by AI (Claude). It is not made, endorsed or supported by Starfox64Recomp's authors: nothing here is
+> offered upstream, and please don't take issues with this fork to them. Building it: [BUILDING.md](BUILDING.md).
+>
+> This port is here to build out and test N64Recomp-browser's web support on another game than the one it was written
+> for: what it turns up is fixed there where it can be, so every recomp's page gets the fix.
+
+**Play it in the browser: https://amazingalek.github.io/Starfox64Recomp-web/**, with your own dump of Star Fox 64 (US
+1.1, Rev A), picked in the launcher and kept in the browser. It needs WebGPU (Chrome or Edge 113 and up, or Firefox).
+The page is built from this branch and published with N64Recomp-browser's `tools/publish_page.sh`, so it can be a
+commit or two behind.
+
+## What this fork changes
+
+- The launcher and menus are RecompFrontend's, which every N64Recomp-browser page uses, in place of the copy of
+  Zelda 64: Recompiled's that upstream carries. `lib/rt64`, `lib/N64ModernRuntime` and `lib/RecompFrontend` are
+  upstream's at the commits N64Recomp-browser's web forks are built on, patched by its `patches/apply.cmake`, for the
+  native build too. The game's patches are upstream's, and so are its settings, on RecompFrontend's tabs: film grain,
+  the radio communication box and the inverted Y axis on General, the music, effects and voice volumes on Sound.
+- Upstream's debug menu and quicksaves, which its own menus held, are left out: RecompFrontend has neither.
+- `patches/shader_survey.c` lets a script start any level (`tools/shader_survey.js`), for recording the page's shader
+  list; it does nothing unless a script asks.
+- The page takes no mods (a browser can't load recompiled code at run time), builds the game's shaders before it draws
+  with them, from `src/rt64_shaders.txt`, and leaves out RT64's render to RAM: the game's CPU never reads a frame back
+  (`src/main/main.cpp` says what it does read and write).
+
+What was played on the page and how it measured is in [BUILDING.md](BUILDING.md#what-was-played).
+
 # Starfox 64: Recompiled
 [Starfox 64: Recompiled](https://github.com/sonicdcer/Starfox64Recomp) is a project that uses [N64: Recompiled](https://github.com/Mr-Wiseguy/N64Recomp) to **statically recompile** Starfox 64 into a native port with many new features, enhancements, and extensive mod support. This project uses [RT64](https://github.com/rt64/rt64) as the rendering engine to provide some of these enhancements.
 

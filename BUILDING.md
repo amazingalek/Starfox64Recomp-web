@@ -1,85 +1,95 @@
-# Building Guide
+# Building
 
-This guide will help you build the project on your local machine. The process will require you to provide a decompressed ROM of the 1.1 US version of the game.
+The game's code is recompiled at build time from your own dump of Star Fox 64 (US 1.1, Rev A, big-endian `.z64`, md5
+741a94eee093c4c8684e66b89f8685e8), decompressed first. The program, native or the page, then takes the plain dump from
+its launcher's Load ROM and decompresses it in memory.
 
-These steps cover: decompressing the ROM, running the recompiler and finally building the project.
-
-## 1. Clone the Starfox64Recomp Repository
-This project makes use of submodules so you will need to clone the repository with the `--recurse-submodules` flag.
-
-```bash
-git clone --recurse-submodules
-# if you forgot to clone with --recurse-submodules
-# cd /path/to/cloned/repo && git submodule update --init --recursive
-```
-
-## 2. Install Dependencies
-
-### Linux
-For Linux the instructions for Ubuntu are provided, but you can find the equivalent packages for your preferred distro.
+## 1. Clone with the submodules
 
 ```bash
-# For Ubuntu, simply run:
-sudo apt-get install cmake ninja libsdl2-dev libgtk-3-dev lld llvm clang-15
+git clone --recurse-submodules https://github.com/amazingalek/Starfox64Recomp-web
 ```
 
-### Windows
-You will need to install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-In the setup process you'll need to select the following options and tools for installation:
-- Desktop development with C++
-- C++ Clang Compiler for Windows
-- C++ CMake tools for Windows
+`lib/` holds RT64, N64ModernRuntime (with N64Recomp) and RecompFrontend from their upstream repositories, at the
+commits [N64Recomp-browser](https://github.com/amazingalek/N64Recomp-browser)'s web forks are built on
+(Starfox64Recomp itself predates RecompFrontend, so its own pins are older); N64Recomp-browser, whose `patches/`
+puts the web support into their checkouts and whose `frontend/` makes the page; and the Star Fox 64 decompilation
+(`lib/sf64decomp`, whose headers the patches use and whose tools decompress the ROM). `Starfox64RecompSyms` holds the
+symbols N64Recomp reads.
 
-The other tool necessary will be `make` which can be installe via [Chocolatey](https://chocolatey.org/):
-```bash
-choco install make
-```
+## 2. Tools
 
-## 3. Decompressing the target ROM
-You will need to decompress the 1.1 US N64 Starfox 64 ROM (md5: 741a94eee093c4c8684e66b89f8685e8) before running the recompiler.
+- CMake 3.20+, Ninja, clang for the program (clang-cl on Windows), SDL2 and GTK 3 on Linux
+  (`sudo apt-get install cmake ninja-build libsdl2-dev libgtk-3-dev lld llvm clang`).
+- A clang with a MIPS target and `ld.lld`, plus `make`, for the patches (`patches/`). Linux's clang has one. On Windows
+  llvm.org's clang has none: MSYS2's clang64 does, with llvm.org's `ld.lld`.
+- Python 3 and a C compiler, to decompress the ROM.
+- For the page: emsdk (`emsdk install latest`) and [naga](https://github.com/gfx-rs/wgpu/tree/trunk/naga)
+  (`cargo install naga-cli`).
 
-There are a few tools that can do it:
-* This python script from the Starfox 64 decompilation project: https://github.com/sonicdcer/sf64/blob/master/tools/comptool.py. Setting up the Starfox 64 Decompilation project and running this command is recommended:
-
-```bash
-make decompress
-```
-
-Alternatively, you can download the python script and mio0 decompressor and run them yourself:
+## 3. The recompiled code
 
 ```bash
-python3 comptool.py -dse baserom -m ./tools/mio0 baserom.us.rev1.z64 baserom.us.rev1.uncompressed.z64
+# starfox64.us.rev1.uncompressed.z64, which N64Recomp reads
+bash tools/decompress_rom.sh <your US 1.1 dump>
+
+# N64Recomp-browser's patches in lib/rt64, lib/N64ModernRuntime and lib/RecompFrontend
+cmake -P lib/N64Recomp-browser/patches/apply.cmake lib
+
+# N64Recomp and RSPRecomp, from the patched N64Recomp in lib/
+cmake -S lib/N64ModernRuntime/N64Recomp -B build-n64recomp -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build-n64recomp --target N64RecompCLI RSPRecomp
+cp build-n64recomp/N64Recomp build-n64recomp/RSPRecomp .                  # .exe on Windows
+
+./N64Recomp us.rev1.toml            # RecompiledFuncs/
+./RSPRecomp aspMain.us.rev1.toml    # rsp/aspMain.cpp
 ```
 
-Copy the decompressed ROM to the root of the Starfox64Recomp repository with this filename:
-- `starfox64.us.rev1.uncompressed.z64`
+The native program needs the patches as much as the page does: the code the patched N64Recomp writes uses the patched
+`recomp.h` (`RECOMP_TAIL_CALL`). The web support in them is behind `__EMSCRIPTEN__` and changes nothing natively.
+Configuring the program (step 4, or the page) applies them too if they aren't in yet, and does nothing if they are;
+`git apply --reverse lib/N64Recomp-browser/patches/<name>.patch` in a checkout takes one out.
 
-## 4. Generating the C code
+The build compiles and recompiles the patches itself (`make` in `patches/`, then `./N64Recomp patches.toml`).
 
-Now that you have the required files, you must build [N64Recomp](https://github.com/Mr-Wiseguy/N64Recomp) and run it to generate the C code to be compiled. The building instructions can be found [here](https://github.com/Mr-Wiseguy/N64Recomp?tab=readme-ov-file#building). That will build the executables: `N64Recomp` and `RSPRecomp` which you should copy to the root of the Starfox64Recomp repository.
+## 4. Native
 
-After that, go back to the repository root, and run the following commands:
 ```bash
-./N64Recomp us.rev1.toml
-./RSPRecomp aspMain.us.rev1.toml
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+    -DPATCHES_C_COMPILER=<clang with a MIPS target> -DPATCHES_LD=<ld.lld>    # clang-cl for the program on Windows
+cmake --build build --target Starfox64Recompiled
 ```
 
-## 5. Building the Project
+Run it from the repository's root (it reads `assets/`). A `portable.txt` there keeps settings, saves and the stored
+ROM beside it.
 
-Finally, you can build the project! :rocket:
-
-On Windows, you can open the repository folder with Visual Studio, and you'll be able to `[build / run / debug]` the project from there.
-
-If you prefer the command line or you're on a Unix platform you can build the project using CMake:
+## The web page
 
 ```bash
-cmake -S . -B build-cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -G Ninja -DCMAKE_BUILD_TYPE=Release # or Debug if you want to debug
-cmake --build build-cmake --target Starfox64Recompiled -j$(nproc) --config Release # or Debug
+embuilder build sdl2-mt freetype-legacysjlj      # once
+emcmake cmake -S . -B build-web -G Ninja -DCMAKE_BUILD_TYPE=Release -DRT64_NAGA_EXECUTABLE=<naga> \
+    -DPATCHES_C_COMPILER=<clang with a MIPS target> -DPATCHES_LD=<ld.lld>
+cmake --build build-web --target Starfox64Recompiled
 ```
 
-## 6. Success
+Keep `build-web` inside the checkout and put [ccache](https://ccache.dev) on `PATH`: N64Recomp-browser's
+`frontend/build_speed.cmake` puts it in front of every compile, and a second fresh build dir then compiles almost
+nothing. emsdk's clang has no MIPS target, so the patches are compiled with the host's clang (`PATCHES_C_COMPILER`).
 
-Voilà! You should now have a `Starfox64Recompiled` executable in the build directory! If you used Visual Studio this will be `out/build/x64-[Configuration]` and if you used the provided CMake commands then this will be `build-cmake`. You will need to run the executable out of the root folder of this project or copy the assets folder to the build folder to run it.
+`build-web/Starfox64Recompiled.html` must be served with `Cross-Origin-Opener-Policy: same-origin` and
+`Cross-Origin-Embedder-Policy: require-corp` (threads need SharedArrayBuffer), or with `coi_serviceworker.js` beside
+it where headers can't be set. Open it in a browser with WebGPU and pick your dump with Load ROM: it is kept in the
+browser's storage, with settings and saves.
 
-> [!IMPORTANT]  
-> In the game itself, you should be using a standard ROM, not the decompressed one.
+### The shader list
+
+The page specializes the shaders in `src/rt64_shaders.txt` at build time (`RT64_PREBUILT_SHADER_LIST`), so that it
+never draws with RT64's slow general shader. The list is recorded by `tools/record_shaders.sh <build-web> <rom>`, which
+plays `tools/shader_plan.json` with N64Recomp-browser's `tools/record_shaders.mjs`: the page opened with
+`?record-shaders` prints every shader the game asks for, and the plan reaches each level by code
+(`tools/shader_survey.js` and `patches/shader_survey.c`, which start a level through the game's own change of state,
+with the player kept alive and firing). Its header says what was played and what wasn't.
+
+## What was played
+
+Not yet.
