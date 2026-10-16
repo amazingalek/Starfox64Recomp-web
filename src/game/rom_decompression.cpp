@@ -2,7 +2,7 @@
 #include <cstring>
 #include <fstream>
 
-#include "zelda_game.h"
+#include "sf64.h"
 
 uint8_t read_bit_array(std::span<const uint8_t> arr, size_t index) {
     uint8_t byte = arr[index / 8];
@@ -65,7 +65,7 @@ constexpr uint32_t byteswap(uint32_t val) {
 // For other recomps using this repo as an example, you can omit the decompression routine and
 // set the corresponding fields in the GameEntry if the game doesn't have compressed code,
 // even if it does have compressed data.
-std::vector<uint8_t> zelda64::decompress_sf64(std::span<const uint8_t> compressed_rom) {
+std::vector<uint8_t> sf64::decompress_rom(std::span<const uint8_t> compressed_rom) {
     // Sanity check the rom size and header. These should already be correct from the runtime's check,
     // but it should prevent this file from accidentally being copied to another recomp.
     if (compressed_rom.size() != 0xC00000) {

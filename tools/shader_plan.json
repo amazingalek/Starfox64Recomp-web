@@ -1,0 +1,715 @@
+{
+ "page": "Starfox64Recompiled.html",
+ "header": [
+  "The RT64 shaders the web page builds: one shader description a line, other mode L and H, color combiner L and H,",
+  "flags, in hex. RT64 specializes each one's WGSL when the page is built and builds them with the game waiting: those",
+  "above the first \"section\" line before the game starts, and a section when a frame first wants 4 of its shaders,",
+  "so that nothing draws with the ubershader, which integrated graphics can't afford (N64Recomp-browser's README,",
+  "\"Give RT64 a list of the game's shaders\").",
+  "",
+  "Recorded by code, not by playing: bash tools/record_shaders.sh (its header says how) runs N64Recomp-browser's",
+  "tools/record_shaders.mjs with tools/shader_plan.json, which loads the page fresh for each section and has",
+  "tools/shader_survey.js start each level through patches/shader_survey.c, the game's own change of state, with the",
+  "player kept alive and firing. Section 0 is the launcher, the logos, the title's opening and the title; then the",
+  "main menu to the Lylat map, each planet from its start for 90 s (all-range) to 150 s (on rails), Meteo's and",
+  "Sector X's warp zones, the training, Venom's two routes and Andross, game over, the Versus menus to a match's start",
+  "and the ending. Not recorded: what a level draws past the time played (most bosses on rails), the other route's",
+  "branches within a level, the Landmaster's and Blue-Marine's end screens, and the rest of a Versus match. Flags follow",
+  "settings (filtering, HDR, MSAA, upscaling), so a change to one of those defaults means recording again."
+ ],
+ "load": [
+  [
+   "until",
+   "Device Name",
+   60000
+  ],
+  [
+   "wait",
+   6000
+  ]
+ ],
+ "setup": [
+  [
+   "rom",
+   628,
+   364
+  ],
+  [
+   "wait",
+   4000
+  ]
+ ],
+ "start": [
+  [
+   "click",
+   628,
+   364
+  ],
+  [
+   "wait",
+   3000
+  ],
+  [
+   "evalFile",
+   "shader_survey.js"
+  ],
+  [
+   "eval",
+   "untilState(2, 120000)"
+  ],
+  [
+   "wait",
+   8000
+  ]
+ ],
+ "sections": [
+  {
+   "name": "menus",
+   "steps": [
+    [
+     "pressUntil",
+     "Enter",
+     "Enter",
+     13,
+     100,
+     700,
+     "n64r(0x80177834) === 3",
+     30000
+    ],
+    [
+     "wait",
+     4000
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     700,
+     "n64r(0x80177834) === 4",
+     30000
+    ],
+    [
+     "wait",
+     8000
+    ],
+    [
+     "key",
+     "Enter",
+     "Enter",
+     13
+    ],
+    [
+     "wait",
+     15000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "corneria",
+   "steps": [
+    [
+     "eval",
+     "level(0)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "meteo",
+   "steps": [
+    [
+     "eval",
+     "level(1)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "meteowarp",
+   "steps": [
+    [
+     "eval",
+     "level(1, 1)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "katina",
+   "steps": [
+    [
+     "eval",
+     "level(16)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "fortuna",
+   "steps": [
+    [
+     "eval",
+     "level(14)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "sectory",
+   "steps": [
+    [
+     "eval",
+     "level(5)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "aquas",
+   "steps": [
+    [
+     "eval",
+     "level(13)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "sectorx",
+   "steps": [
+    [
+     "eval",
+     "level(2)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "sectorxwarp",
+   "steps": [
+    [
+     "eval",
+     "level(2, 1)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "solar",
+   "steps": [
+    [
+     "eval",
+     "level(7)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "zoness",
+   "steps": [
+    [
+     "eval",
+     "level(8)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "titania",
+   "steps": [
+    [
+     "eval",
+     "level(12)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "macbeth",
+   "steps": [
+    [
+     "eval",
+     "level(11)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "sectorz",
+   "steps": [
+    [
+     "eval",
+     "level(18)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "area6",
+   "steps": [
+    [
+     "eval",
+     "level(3)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "bolse",
+   "steps": [
+    [
+     "eval",
+     "level(17)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "venom1",
+   "steps": [
+    [
+     "eval",
+     "level(6)"
+    ],
+    [
+     "eval",
+     "fireFor(150000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     160000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "venom2",
+   "steps": [
+    [
+     "eval",
+     "level(19)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "andross",
+   "steps": [
+    [
+     "eval",
+     "level(9)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "training",
+   "steps": [
+    [
+     "eval",
+     "level(10)"
+    ],
+    [
+     "eval",
+     "fireFor(90000)"
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     150,
+     "Date.now() > window.firing",
+     100000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "gameover",
+   "steps": [
+    [
+     "eval",
+     "gameState(5)"
+    ],
+    [
+     "wait",
+     15000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "versus",
+   "steps": [
+    [
+     "eval",
+     "gameState(6)"
+    ],
+    [
+     "wait",
+     6000
+    ],
+    [
+     "pressUntil",
+     "Space",
+     " ",
+     32,
+     100,
+     1500,
+     "false",
+     20000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  },
+  {
+   "name": "ending",
+   "steps": [
+    [
+     "eval",
+     "gameState(8)"
+    ],
+    [
+     "wait",
+     150000
+    ],
+    [
+     "eval",
+     "state()"
+    ]
+   ]
+  }
+ ]
+}

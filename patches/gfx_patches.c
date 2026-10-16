@@ -19,6 +19,8 @@
 #include "misc_funcs.h"
 #include "patches.h"
 
+void shader_survey_update(void);
+
 // @recomp make GfxPool larger
 typedef struct {
     /* 0x00000 */ SPTask task;
@@ -92,6 +94,7 @@ RECOMP_PATCH void Graphics_ThreadEntry(void* arg0) {
 
             gSPSegment(gUnkDisp1++, 0, 0);
             gSPDisplayList(gMasterDisp++, gExGfxPool->unkDL1); // @recomp
+            shader_survey_update(); // the page's shader survey (shader_survey.c)
             Game_Update();
             if (gStartNMI == 1) {
                 Graphics_NMIWipe();

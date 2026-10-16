@@ -1,0 +1,111 @@
+{
+ "page": "Starfox64Recompiled.html",
+ "header": [
+  "Plays Star Fox 64 the way a player starts it, for play_page.mjs: the title, the main menu's Main Game, the",
+  "Lylat map's prologue and Corneria, then a minute of Corneria with A held down and the shields kept full",
+  "(tools/shader_survey.js's fireFor, patches/shader_survey.c's invincible)."
+ ],
+ "load": [
+  [
+   "until",
+   "Device Name",
+   60000
+  ],
+  [
+   "wait",
+   6000
+  ]
+ ],
+ "setup": [
+  [
+   "rom",
+   628,
+   364
+  ],
+  [
+   "wait",
+   4000
+  ]
+ ],
+ "start": [
+  [
+   "click",
+   628,
+   364
+  ],
+  [
+   "wait",
+   3000
+  ],
+  [
+   "evalFile",
+   "shader_survey.js"
+  ],
+  [
+   "eval",
+   "untilState(2, 120000)"
+  ],
+  [
+   "wait",
+   3000
+  ]
+ ],
+ "play": [
+  [
+   "pressUntil",
+   "Enter",
+   "Enter",
+   13,
+   100,
+   700,
+   "n64r(0x80177834) === 3",
+   30000
+  ],
+  [
+   "wait",
+   3000
+  ],
+  [
+   "pressUntil",
+   "Space",
+   " ",
+   32,
+   100,
+   700,
+   "n64r(0x80177834) === 4",
+   30000
+  ],
+  [
+   "pressUntil",
+   "Enter",
+   "Enter",
+   13,
+   100,
+   1000,
+   "n64r(0x80177834) === 7",
+   90000
+  ],
+  [
+   "eval",
+   "state()"
+  ],
+  [
+   "eval",
+   "fireFor(60000)"
+  ],
+  [
+   "pressUntil",
+   "Space",
+   " ",
+   32,
+   100,
+   150,
+   "Date.now() > window.firing",
+   70000
+  ],
+  [
+   "eval",
+   "state()"
+  ]
+ ]
+}

@@ -2,11 +2,10 @@
 
 #include "recomp.h"
 #include "librecomp/overlays.hpp"
-#include "zelda_config.h"
-#include "recomp_input.h"
-#include "recomp_ui.h"
-#include "zelda_render.h"
-#include "zelda_sound.h"
+#include "sf64.h"
+#include "recompinput/recompinput.h"
+#include "recompui/recompui.h"
+#include "recompui/renderer.h"
 #include "librecomp/helpers.hpp"
 // #include "../patches/input.h"
 // #include "../patches/graphics.h"
@@ -15,7 +14,7 @@
 #include "ultramodern/config.hpp"
 
 extern "C" void recomp_update_inputs(uint8_t* rdram, recomp_context* ctx) {
-    recomp::poll_inputs();
+    recompinput::poll_inputs();
 }
 
 extern "C" void sqrtf_recomp(uint8_t* rdram, recomp_context* ctx) {
@@ -48,14 +47,14 @@ extern "C" void recomp_get_gyro_deltas(uint8_t* rdram, recomp_context* ctx) {
     float* x_out = _arg<0, float*>(rdram, ctx);
     float* y_out = _arg<1, float*>(rdram, ctx);
 
-    recomp::get_gyro_deltas(x_out, y_out);
+    recompinput::get_gyro_deltas(0, x_out, y_out);
 }
 
 extern "C" void recomp_get_mouse_deltas(uint8_t* rdram, recomp_context* ctx) {
     float* x_out = _arg<0, float*>(rdram, ctx);
     float* y_out = _arg<1, float*>(rdram, ctx);
 
-    recomp::get_mouse_deltas(x_out, y_out);
+    recompinput::get_mouse_deltas(x_out, y_out);
 }
 
 extern "C" void recomp_powf(uint8_t* rdram, recomp_context* ctx) {
@@ -99,24 +98,25 @@ extern "C" void recomp_get_target_aspect_ratio(uint8_t* rdram, recomp_context* c
     }
 }
 
+// Zelda 64: Recompiled's settings, which upstream carried over and never showed: answered with the defaults it kept.
 extern "C" void recomp_get_targeting_mode(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, static_cast<int>(zelda64::get_targeting_mode()));
+    _return(ctx, 0); // Switch
 }
 
 extern "C" void recomp_get_bgm_volume(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, zelda64::get_bgm_volume() / 100.0f);
+    _return(ctx, sf64::get_bgm_volume() / 100.0f);
 }
 
 extern "C" void recomp_get_sfx_volume(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, zelda64::get_sfx_volume() / 100.0f);
+    _return(ctx, sf64::get_sfx_volume() / 100.0f);
 }
 
 extern "C" void recomp_get_voice_volume(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, zelda64::get_voice_volume() / 100.0f);
+    _return(ctx, sf64::get_voice_volume() / 100.0f);
 }
 
 extern "C" void recomp_get_low_health_beeps_enabled(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, static_cast<u32>(zelda64::get_low_health_beeps_enabled()));
+    _return(ctx, static_cast<u32>(1));
 }
 
 extern "C" void recomp_time_us(uint8_t* rdram, recomp_context* ctx) {
@@ -124,7 +124,7 @@ extern "C" void recomp_time_us(uint8_t* rdram, recomp_context* ctx) {
 }
 
 extern "C" void recomp_get_film_grain_enabled(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, static_cast<s32>(zelda64::get_film_grain_mode() == zelda64::FilmGrainMode::On));
+    _return(ctx, static_cast<s32>(sf64::get_film_grain_enabled()));
 }
 
 extern "C" void recomp_load_overlays(uint8_t * rdram, recomp_context * ctx) {
@@ -136,7 +136,7 @@ extern "C" void recomp_load_overlays(uint8_t * rdram, recomp_context * ctx) {
 }
 
 extern "C" void recomp_high_precision_fb_enabled(uint8_t * rdram, recomp_context * ctx) {
-    _return(ctx, static_cast<s32>(zelda64::renderer::RT64HighPrecisionFBEnabled()));
+    _return(ctx, static_cast<s32>(recompui::renderer::RT64HighPrecisionFBEnabled()));
 }
 
 extern "C" void recomp_get_resolution_scale(uint8_t* rdram, recomp_context* ctx) {
@@ -147,28 +147,25 @@ extern "C" void recomp_get_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
     s32* x_out = _arg<0, s32*>(rdram, ctx);
     s32* y_out = _arg<1, s32*>(rdram, ctx);
 
-    zelda64::RadioBoxMode mode = zelda64::get_radio_comm_box_mode();
-
-    // *x_out = (mode == zelda64::AimInvertMode::InvertX || mode == zelda64::AimInvertMode::InvertBoth);
-    // *y_out = (mode == zelda64::AimInvertMode::InvertY || mode == zelda64::AimInvertMode::InvertBoth);
+    // Upstream left these unset; none of the patches reads them.
+    *x_out = 0;
+    *y_out = 0;
 }
 
 extern "C" void recomp_get_radio_comm_box_mode(uint8_t* rdram, recomp_context* ctx) {
-    _return<s32>(ctx, zelda64::get_radio_comm_box_mode() == zelda64::RadioBoxMode::Expand);
+    _return<s32>(ctx, sf64::get_radio_comm_box_expanded());
 }
 
 extern "C" void recomp_get_analog_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
     s32* x_out = _arg<0, s32*>(rdram, ctx);
     s32* y_out = _arg<1, s32*>(rdram, ctx);
 
-    zelda64::AimInvertMode mode = zelda64::get_analog_camera_invert_mode();
-
-    // *x_out = (mode == zelda64::AimInvertMode::InvertX || mode == zelda64::AimInvertMode::InvertBoth);
-    // *y_out = (mode == zelda64::AimInvertMode::InvertY || mode == zelda64::AimInvertMode::InvertBoth);
+    *x_out = 0;
+    *y_out = 0;
 }
 
 extern "C" void recomp_get_invert_y_axis_mode(uint8_t* rdram, recomp_context* ctx) {
-    _return<s32>(ctx, zelda64::get_invert_y_axis_mode() == zelda64::AimInvertMode::On);
+    _return<s32>(ctx, sf64::get_invert_y_axis_enabled());
 }
 
 extern "C" void recomp_get_camera_inputs(uint8_t* rdram, recomp_context* ctx) {
@@ -180,7 +177,7 @@ extern "C" void recomp_get_camera_inputs(uint8_t* rdram, recomp_context* ctx) {
 
     float x, y;
 
-    recomp::get_right_analog(&x, &y);
+    recompinput::get_right_analog(0, &x, &y);
 
     float magnitude = sqrtf(x * x + y * y);
 
@@ -200,5 +197,14 @@ extern "C" void recomp_get_camera_inputs(uint8_t* rdram, recomp_context* ctx) {
 extern "C" void recomp_set_right_analog_suppressed(uint8_t* rdram, recomp_context* ctx) {
     s32 suppressed = _arg<0, s32>(rdram, ctx);
 
-    recomp::set_right_analog_suppressed(suppressed);
+    recompinput::set_right_analog_suppressed(suppressed);
+}
+
+// Zelda 64: Recompiled's warp and time of day, which upstream's patches declare and never call: nothing is pending.
+extern "C" void recomp_get_pending_warp(uint8_t* rdram, recomp_context* ctx) {
+    _return<uint32_t>(ctx, 0xFFFF);
+}
+
+extern "C" void recomp_get_pending_set_time(uint8_t* rdram, recomp_context* ctx) {
+    _return<uint32_t>(ctx, 0xFFFF);
 }
