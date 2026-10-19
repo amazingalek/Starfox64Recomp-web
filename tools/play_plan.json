@@ -2,8 +2,8 @@
  "page": "Starfox64Recompiled.html",
  "header": [
   "Plays Star Fox 64 the way a player starts it, for play_page.mjs: the title, the main menu's Main Game, the",
-  "Lylat map's prologue and Corneria, then a minute of Corneria with A held down and the shields kept full",
-  "(tools/shader_survey.js's fireFor, patches/shader_survey.c's invincible)."
+  "Lylat map (Start skips its prologue, A picks Corneria) and Corneria, then a minute of Corneria with A held down and",
+  "the shields kept full (tools/shader_survey.js's fireFor, patches/shader_survey.c's invincible)."
  ],
  "load": [
   [
@@ -83,7 +83,17 @@
    100,
    1000,
    "n64r(0x80177834) === 7",
-   90000
+   15000
+  ],
+  [
+   "pressUntil",
+   "Space",
+   " ",
+   32,
+   100,
+   1000,
+   "n64r(0x80177834) === 7",
+   120000
   ],
   [
    "eval",
