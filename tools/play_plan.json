@@ -1,121 +1,57 @@
 {
- "page": "Starfox64Recompiled.html",
- "header": [
-  "Plays Star Fox 64 the way a player starts it, for play_page.mjs: the title, the main menu's Main Game, the",
-  "Lylat map (Start skips its prologue, A picks Corneria) and Corneria, then a minute of Corneria with A held down and",
-  "the shields kept full (tools/shader_survey.js's fireFor, patches/shader_survey.c's invincible)."
- ],
- "load": [
-  [
-   "until",
-   "Device Name",
-   60000
+  "page": "Starfox64Recompiled.html",
+  "header": [
+    "Plays Star Fox 64 the way a player starts it, for play_page.mjs: the title, the main menu's Main Game, the",
+    "Lylat map (Start skips its prologue, A picks Corneria) and Corneria, then a minute of Corneria with A held down and",
+    "the shields kept full (tools/shader_survey.js's fireFor, patches/shader_survey.c's invincible). Then three more",
+    "levels the way the shader plan starts them (the survey's level(), the game's own state change, since a player gets",
+    "to them only by finishing the ones before), 45 s each with A held: Meteo in space, Katina's all-range battle and",
+    "Titania in the Landmaster. The Arwing flies on rails or by itself, so nothing here is timed on the game's clock."
   ],
-  [
-   "wait",
-   6000
+  "load": [
+    ["until", "Device Name", 60000],
+    ["wait", 6000]
+  ],
+  "setup": [
+    ["rom", 628, 364],
+    ["wait", 4000]
+  ],
+  "start": [
+    ["click", 628, 364],
+    ["wait", 3000],
+    ["evalFile", "shader_survey.js"],
+    ["eval", "untilState(2, 120000)"],
+    ["wait", 3000]
+  ],
+  "play": [
+    ["pressUntil", "Enter", "Enter", 13, 100, 700, "n64r(0x80177834) === 3", 30000],
+    ["wait", 3000],
+    ["pressUntil", "Space", " ", 32, 100, 700, "n64r(0x80177834) === 4", 30000],
+    ["pressUntil", "Enter", "Enter", 13, 100, 1000, "n64r(0x80177834) === 7", 15000],
+    ["pressUntil", "Space", " ", 32, 100, 1000, "n64r(0x80177834) === 7", 120000],
+    ["eval", "state()"],
+    ["eval", "fireFor(60000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 52000", 20000],
+    ["shot", "corneria.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 70000],
+    ["eval", "state()"],
+    ["eval", "level(1)"],
+    ["eval", "fireFor(45000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 37000", 20000],
+    ["shot", "meteo.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 50000],
+    ["eval", "state()"],
+    ["eval", "level(16)"],
+    ["eval", "fireFor(45000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 37000", 20000],
+    ["shot", "katina.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 50000],
+    ["eval", "state()"],
+    ["eval", "level(12)"],
+    ["eval", "fireFor(45000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 37000", 20000],
+    ["shot", "titania.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 50000],
+    ["eval", "state()"]
   ]
- ],
- "setup": [
-  [
-   "rom",
-   628,
-   364
-  ],
-  [
-   "wait",
-   4000
-  ]
- ],
- "start": [
-  [
-   "click",
-   628,
-   364
-  ],
-  [
-   "wait",
-   3000
-  ],
-  [
-   "evalFile",
-   "shader_survey.js"
-  ],
-  [
-   "eval",
-   "untilState(2, 120000)"
-  ],
-  [
-   "wait",
-   3000
-  ]
- ],
- "play": [
-  [
-   "pressUntil",
-   "Enter",
-   "Enter",
-   13,
-   100,
-   700,
-   "n64r(0x80177834) === 3",
-   30000
-  ],
-  [
-   "wait",
-   3000
-  ],
-  [
-   "pressUntil",
-   "Space",
-   " ",
-   32,
-   100,
-   700,
-   "n64r(0x80177834) === 4",
-   30000
-  ],
-  [
-   "pressUntil",
-   "Enter",
-   "Enter",
-   13,
-   100,
-   1000,
-   "n64r(0x80177834) === 7",
-   15000
-  ],
-  [
-   "pressUntil",
-   "Space",
-   " ",
-   32,
-   100,
-   1000,
-   "n64r(0x80177834) === 7",
-   120000
-  ],
-  [
-   "eval",
-   "state()"
-  ],
-  [
-   "eval",
-   "fireFor(60000)"
-  ],
-  [
-   "pressUntil",
-   "Space",
-   " ",
-   32,
-   100,
-   150,
-   "Date.now() > window.firing",
-   70000
-  ],
-  [
-   "eval",
-   "state()"
-  ]
- ]
 }
