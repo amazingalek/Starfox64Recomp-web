@@ -1,57 +1,40 @@
 {
   "page": "Starfox64Recompiled.html",
   "header": [
-    "Plays Star Fox 64 the way a player starts it, for play_page.mjs: the title, the main menu's Main Game, the",
-    "Lylat map (Start skips its prologue, A picks Corneria) and Corneria, then 45 s of Corneria with A held down and",
-    "the shields kept full (tools/shader_survey.js's fireFor, patches/shader_survey.c's invincible). Then three more",
-    "levels the way the shader plan starts them (the survey's level(), the game's own state change, since a player gets",
-    "to them only by finishing the ones before), 30 s each with A held: Meteo in space, Katina's all-range battle and",
-    "Titania in the Landmaster. The Arwing flies on rails or by itself, so nothing here is timed on the game's clock."
+    "Star Fox 64's regular plan for play_page.mjs, 2-3 minutes with every timeout counted: the launcher, Load ROM once the",
+    "page has its shader list (Chrome builds the whole list behind the launcher and says when it is done, and a click",
+    "while it builds is lost; Firefox builds none there, and says so as the launcher comes up), the title, the main menu's",
+    "Main Game, the Lylat map (Start skips its prologue, A picks Corneria) and Corneria the way a player starts it, a need",
+    "that it is playing, then 60 s of Corneria with A held down and the shields kept full (tools/shader_survey.js's",
+    "fireFor, patches/shader_survey.c's invincible). The Arwing flies on rails, so nothing here is timed on the game's",
+    "clock. tools/play_plan_extended.json goes on to two more levels, for when a longer play is needed."
   ],
   "load": [
-    ["until", "Device Name", 60000],
-    ["wait", 6000]
+    ["until", "RT64: all \\d+ prebuilt shaders built|once the game draws", 45000],
+    ["wait", 3000]
   ],
   "setup": [
     ["rom", 628, 364],
-    ["wait", 4000]
+    ["wait", 3000]
   ],
   "start": [
     ["click", 628, 364],
     ["wait", 3000],
     ["evalFile", "shader_survey.js"],
-    ["eval", "untilState(2, 120000)"],
+    ["eval", "untilState(2, 15000)"],
     ["wait", 3000]
   ],
   "play": [
-    ["pressUntil", "Enter", "Enter", 13, 100, 700, "n64r(0x80177834) === 3", 30000],
-    ["wait", 3000],
-    ["pressUntil", "Space", " ", 32, 100, 700, "n64r(0x80177834) === 4", 30000],
-    ["pressUntil", "Enter", "Enter", 13, 100, 1000, "n64r(0x80177834) === 7", 15000],
-    ["pressUntil", "Space", " ", 32, 100, 1000, "n64r(0x80177834) === 7", 120000],
-    ["eval", "state()"],
-    ["eval", "fireFor(45000)"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 37000", 20000],
+    ["pressUntil", "Enter", "Enter", 13, 100, 700, "n64r(0x80177834) === 3", 6000],
+    ["wait", 2000],
+    ["pressUntil", "Space", " ", 32, 100, 700, "n64r(0x80177834) === 4", 6000],
+    ["pressUntil", "Enter", "Enter", 13, 100, 1000, "n64r(0x80177834) === 7", 8000],
+    ["pressUntil", "Space", " ", 32, 100, 1000, "n64r(0x80177834) === 7", 25000],
+    ["need", "n64r(0x80177834) === 7 && state()"],
+    ["eval", "fireFor(60000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 51000", 9000],
     ["shot", "corneria.png"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 55000],
-    ["eval", "state()"],
-    ["eval", "level(1)"],
-    ["eval", "fireFor(30000)"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 22000", 20000],
-    ["shot", "meteo.png"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 35000],
-    ["eval", "state()"],
-    ["eval", "level(16)"],
-    ["eval", "fireFor(30000)"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 22000", 20000],
-    ["shot", "katina.png"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 35000],
-    ["eval", "state()"],
-    ["eval", "level(12)"],
-    ["eval", "fireFor(30000)"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 22000", 20000],
-    ["shot", "titania.png"],
-    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 35000],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 51000],
     ["eval", "state()"]
   ]
 }

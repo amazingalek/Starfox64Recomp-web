@@ -90,6 +90,11 @@ plays `tools/shader_plan.json` with N64Recomp-browser's `tools/record_shaders.mj
 (`tools/shader_survey.js` and `patches/shader_survey.c`, which start a level through the game's own change of state,
 with the player kept alive and firing). Its header says what was played and what wasn't.
 
+`tools/play_plan.json` is the page's regular play, 2-3 minutes with every timeout counted, which N64Recomp-browser's
+`tools/play_page.mjs` plays to measure the page: the menus and the Lylat map to Corneria, flown a minute with A held.
+`tools/play_plan_extended.json`, at most 5 minutes, goes on to Meteo and Katina by the survey's `level()`, for when a
+longer play is needed, and the shaders it misses go into the list. Each plan's header says what it plays.
+
 ## What was played
 
 Not yet.

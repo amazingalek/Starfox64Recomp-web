@@ -1,0 +1,55 @@
+{
+  "page": "Starfox64Recompiled.html",
+  "header": [
+    "Star Fox 64's extended plan for play_page.mjs, at most 5 minutes with every timeout counted, for when a longer play",
+    "than the regular one (tools/play_plan.json) is needed: the launcher, Load ROM once the page has its shader list",
+    "(Chrome builds the whole list behind the launcher and says when it is done, and a click while it builds is lost;",
+    "Firefox builds none there, and says so as the launcher comes up), the title, the main menu's Main Game, the Lylat map",
+    "(Start skips its prologue, A picks Corneria) and Corneria the way a player starts it, a need that it is playing, then",
+    "25 s of Corneria with A held down and the shields kept full (tools/shader_survey.js's fireFor,",
+    "patches/shader_survey.c's invincible). Then two more levels the way the shader plan starts them (the survey's",
+    "level(), the game's own state change, since a player gets to them only by finishing the ones before; each a need",
+    "that the level asked for is playing), 20 s each with A held: Meteo in space and Katina's all-range battle. The",
+    "Arwing flies on rails or by itself, so nothing here is timed on the game's clock."
+  ],
+  "load": [
+    ["until", "RT64: all \\d+ prebuilt shaders built|once the game draws", 45000],
+    ["wait", 3000]
+  ],
+  "setup": [
+    ["rom", 628, 364],
+    ["wait", 3000]
+  ],
+  "start": [
+    ["click", 628, 364],
+    ["wait", 3000],
+    ["evalFile", "shader_survey.js"],
+    ["eval", "untilState(2, 25000)"],
+    ["wait", 3000]
+  ],
+  "play": [
+    ["pressUntil", "Enter", "Enter", 13, 100, 700, "n64r(0x80177834) === 3", 10000],
+    ["wait", 3000],
+    ["pressUntil", "Space", " ", 32, 100, 700, "n64r(0x80177834) === 4", 10000],
+    ["pressUntil", "Enter", "Enter", 13, 100, 1000, "n64r(0x80177834) === 7", 8000],
+    ["pressUntil", "Space", " ", 32, 100, 1000, "n64r(0x80177834) === 7", 25000],
+    ["need", "n64r(0x80177834) === 7 && state()"],
+    ["eval", "fireFor(25000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 17000", 9000],
+    ["shot", "corneria.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 18000],
+    ["eval", "state()"],
+    ["need", "level(1).then((s) => s.startsWith('playing') && s)"],
+    ["eval", "fireFor(20000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 12000", 9000],
+    ["shot", "meteo.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 13000],
+    ["eval", "state()"],
+    ["need", "level(16).then((s) => s.startsWith('playing') && s)"],
+    ["eval", "fireFor(20000)"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing - 12000", 9000],
+    ["shot", "katina.png"],
+    ["pressUntil", "Space", " ", 32, 100, 150, "Date.now() > window.firing", 13000],
+    ["eval", "state()"]
+  ]
+}
