@@ -7,11 +7,11 @@ its launcher's Load ROM and decompresses it in memory.
 ## 1. Clone with the submodules
 
 ```bash
-git clone --recurse-submodules https://github.com/amazingalek/Starfox64Recomp-web
+git clone --recurse-submodules https://github.com/n64hub/Starfox64Recomp-web
 ```
 
 `lib/` holds RT64, N64ModernRuntime (with N64Recomp) and RecompFrontend from their upstream repositories, at the
-commits [N64Recomp-browser](https://github.com/amazingalek/N64Recomp-browser)'s web forks are built on
+commits [N64Recomp-browser](https://github.com/n64hub/N64Recomp-browser)'s web forks are built on
 (Starfox64Recomp itself predates RecompFrontend, so its own pins are older); N64Recomp-browser, whose `patches/`
 puts the web support into their checkouts and whose `frontend/` makes the page; and the Star Fox 64 decompilation
 (`lib/sf64decomp`, whose headers the patches use and whose tools decompress the ROM). `Starfox64RecompSyms` holds the
